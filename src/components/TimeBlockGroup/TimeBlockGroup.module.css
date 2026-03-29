@@ -1,0 +1,58 @@
+.group {
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+}
+
+.group {
+  scroll-snap-align: start;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 8px;
+  margin-top: 4px;
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hours {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: "DM Mono", monospace;
+  font-weight: 300;
+  margin-left: 2px;
+}
+
+.count {
+  font-size: 11px;
+  font-family: "DM Mono", monospace;
+  font-weight: 300;
+  transition: color 0.3s ease;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}

@@ -1,0 +1,44 @@
+.section {
+  padding: 0 4px 24px;
+}
+
+.info {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.count {
+  font-size: 32px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  font-family: "DM Mono", monospace;
+  transition: color 0.4s ease;
+}
+
+.total {
+  font-size: 18px;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+.label {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.track {
+  height: 3px;
+  background: var(--bg-tertiary);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}

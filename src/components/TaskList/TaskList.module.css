@@ -1,0 +1,28 @@
+.list {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  justify-content: center;
+}
+
+.list {
+  scroll-snap-type: x mandatory;
+}
+
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.emptyTitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 4px;
+}
+
+.emptyHint {
+  font-size: 13px;
+  color: var(--text-muted);
+  opacity: 0.6;
+  margin: 0;
+}

@@ -1,0 +1,20 @@
+.header {
+  padding: 16px 4px 20px;
+}
+
+.greeting {
+  font-size: 26px;
+  font-weight: 300;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
+}
+
+.date {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: "DM Mono", monospace;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  margin: 0;
+}

@@ -1,0 +1,47 @@
+.selector {
+  display: flex;
+  gap: 4px;
+}
+
+.option {
+  font-family: "DM Sans", sans-serif;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.normal {
+  padding: 6px 14px;
+  font-size: 12px;
+}
+
+.small {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+.active {
+  background: var(--accent-dim);
+  border: 1px solid rgba(124, 173, 138, 0.3);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.inactive {
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.inactive:hover {
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+.icon {
+  margin-right: 4px;
+  font-size: 0.85em;
+}

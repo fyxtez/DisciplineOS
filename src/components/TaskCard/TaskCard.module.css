@@ -1,0 +1,192 @@
+.card {
+  border-radius: 10px;
+  padding: 12px 14px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  animation: fadeIn 0.3s ease;
+}
+
+.cardActive {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.cardDone {
+  background: var(--completed-bg);
+  border: 1px solid rgba(124, 173, 138, 0.1);
+}
+
+.main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* ── Checkbox ── */
+
+.check {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-top: 1px;
+  padding: 0;
+}
+
+.checkEmpty {
+  background: transparent;
+  border: 1.5px solid var(--check-ring);
+  color: transparent;
+}
+
+.checkEmpty:hover {
+  border-color: var(--accent);
+}
+
+.checkDone {
+  background: var(--accent);
+  border: 1.5px solid var(--accent);
+  color: var(--bg-primary);
+}
+
+.checkBounce {
+  animation: completePulse 0.4s ease;
+}
+
+/* ── Content ── */
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-primary);
+  line-height: 24px;
+  transition: color 0.3s ease;
+}
+
+.titleDone {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 24px;
+  text-decoration: line-through;
+  transition: color 0.3s ease;
+}
+
+.reminder {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: "DM Mono", monospace;
+  font-weight: 300;
+  padding: 2px 6px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+.reminderText {
+  margin-left: 3px;
+}
+
+.expandBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: "DM Sans", sans-serif;
+  cursor: pointer;
+  padding: 4px 0 0;
+  font-weight: 400;
+}
+
+.expandBtn:hover {
+  color: var(--text-secondary);
+}
+
+.expandLabel {
+  margin-left: 4px;
+}
+
+/* ── Actions ── */
+
+.actions {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.card:hover .actions {
+  opacity: 1;
+}
+
+.actionBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 5px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.actionBtn:hover {
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+}
+
+.actionDanger:hover {
+  color: var(--danger);
+  background: var(--danger-dim);
+}
+
+/* ── Animations ── */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes completePulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

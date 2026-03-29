@@ -1,0 +1,36 @@
+.list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-left: 2px;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+}
+
+.dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  margin-right: 8px;
+  flex-shrink: 0;
+  margin-top: 7px;
+}
+
+.text {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.textDimmed {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
