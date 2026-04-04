@@ -22,9 +22,9 @@ export default function App() {
     isCompleted,
   } = useTasks();
 
-  const handleEdit = (id: number, data: TaskFormData) => {
-    updateTask(id, data);
-  };
+const handleEdit = async (id: number, data: TaskFormData) => {
+  await updateTask(id, data);
+};
 
   return (
     <div className={styles.root}>

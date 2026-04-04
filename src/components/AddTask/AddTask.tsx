@@ -6,11 +6,12 @@ import { PlusIcon, ClockIcon } from "../Icons";
 import styles from "./AddTask.module.css";
 
 interface AddTaskProps {
-  onAdd: (data: TaskFormData) => void;
+  onAdd: (data: TaskFormData) => Promise<void>;
 }
 
 export default function AddTask({ onAdd }: AddTaskProps) {
   const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<TaskFormData>({ ...EMPTY_FORM });
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -20,14 +21,23 @@ export default function AddTask({ onAdd }: AddTaskProps) {
     }
   }, [open]);
 
-  const handleAdd = () => {
-    if (!form.title.trim()) return;
-    onAdd(form);
-    setForm({ ...EMPTY_FORM });
-    setOpen(false);
+  const handleAdd = async () => {
+    if (!form.title.trim() || saving) return;
+
+    try {
+      setSaving(true);
+      await onAdd(form);
+      setForm({ ...EMPTY_FORM });
+      setOpen(false);
+    } catch (error) {
+      console.error("failed to add task:", error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
+    if (saving) return;
     setForm({ ...EMPTY_FORM });
     setOpen(false);
   };
@@ -35,7 +45,7 @@ export default function AddTask({ onAdd }: AddTaskProps) {
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleAdd();
+      void handleAdd();
     }
     if (e.key === "Escape") handleCancel();
   };
@@ -93,11 +103,12 @@ export default function AddTask({ onAdd }: AddTaskProps) {
               cancel
             </button>
             <button
-              onClick={handleAdd}
+              onClick={() => void handleAdd()}
               className={styles.saveBtn}
+              disabled={!form.title.trim() || saving}
               style={{ opacity: form.title.trim() ? 1 : 0.4 }}
             >
-              add
+              {saving ? "saving..." : "add"}
             </button>
           </div>
         </div>

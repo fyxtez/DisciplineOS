@@ -9,7 +9,16 @@ export const TIME_BLOCKS: TimeBlock[] = [
 export const DEFAULT_TASKS: Task[] = [
   {
     id: 1,
-    title: "Drink Apple Cider Vinegar + Lime",
+    title: "Drink Apple Cider Vinegar + Lime + Curcumin",
+    subtasks: [],
+    reminder: "",
+    timeBlock: "morning",
+    active: true,
+    createdAt: Date.now(),
+  },
+    {
+    id: 122,
+    title: "Sun  Cream -  SPF 50",
     subtasks: [],
     reminder: "",
     timeBlock: "morning",
@@ -67,7 +76,7 @@ export const DEFAULT_TASKS: Task[] = [
   {
     id: 7,
     title: "Take Supplements",
-    subtasks: ["Magnesium"],
+    subtasks: ["Magnesium","Kefir"],
     reminder: "22:00",
     timeBlock: "evening",
     active: true,
@@ -84,7 +93,7 @@ export const DEFAULT_TASKS: Task[] = [
   },
     {
     id: 9,
-    title: "Set Alarams",
+    title: "Set Alarms",
     subtasks: [],
     reminder: "",
     timeBlock: "evening",

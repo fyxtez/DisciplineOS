@@ -14,6 +14,7 @@ export interface Task {
   reminder: string;
   timeBlock: TimeBlockKey;
   active: boolean;
+  complete: boolean;
   createdAt: number;
 }
 

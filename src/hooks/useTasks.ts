@@ -1,17 +1,49 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { Task, TimeBlockKey, TaskFormData } from "../types";
-import { DEFAULT_TASKS } from "../data/defaults";
+import {
+  getTasks,
+  saveTask as saveTaskCmd,
+  updateTask as updateTaskCmd,
+  removeTask as removeTaskCmd,
+} from "../tasks";
 
-interface TaskCompletions {
-  [taskId: number]: boolean;
+interface BlockProgress {
+  done: number;
+  total: number;
+  allDone: boolean;
 }
 
 export function useTasks() {
-  const [tasks, setTasks] = useState<Task[]>(DEFAULT_TASKS);
-  const [completions, setCompletions] = useState<TaskCompletions>({});
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadTasks = async () => {
+      try {
+        const storedTasks = await getTasks();
+        if (!cancelled) {
+          setTasks(storedTasks);
+        }
+      } catch (error) {
+        console.error("failed to load tasks:", error);
+      }
+    };
+
+    void loadTasks();
+
+    const interval = window.setInterval(() => {
+      void loadTasks();
+    }, 30_000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, []);
 
   const activeTasks = tasks.filter((t) => t.active);
-  const completedCount = activeTasks.filter((t) => completions[t.id]).length;
+  const completedCount = activeTasks.filter((t) => t.complete).length;
   const totalCount = activeTasks.length;
   const allDone = totalCount > 0 && completedCount === totalCount;
   const progress = totalCount > 0 ? completedCount / totalCount : 0;
@@ -24,72 +56,113 @@ export function useTasks() {
   );
 
   const getBlockProgress = useCallback(
-    (blockKey: TimeBlockKey) => {
+    (blockKey: TimeBlockKey): BlockProgress | null => {
       const bt = getBlockTasks(blockKey);
       if (bt.length === 0) return null;
-      const done = bt.filter((t) => completions[t.id]).length;
-      return { done, total: bt.length, allDone: done === bt.length };
+
+      const done = bt.filter((t) => t.complete).length;
+
+      return {
+        done,
+        total: bt.length,
+        allDone: done === bt.length,
+      };
     },
-    [getBlockTasks, completions]
+    [getBlockTasks]
   );
 
-  const toggleComplete = useCallback((id: number) => {
-    setCompletions((prev) => ({ ...prev, [id]: !prev[id] }));
-  }, []);
+  const toggleComplete = useCallback(async (id: number) => {
+    const current = tasks.find((t) => t.id === id);
+    if (!current) return;
 
-  const addTask = useCallback((formData: TaskFormData) => {
+    const updatedTask: Task = {
+      ...current,
+      complete: !current.complete,
+    };
+
+    try {
+      const nextTasks = await updateTaskCmd(updatedTask);
+      setTasks(nextTasks);
+    } catch (error) {
+      console.error("failed to toggle task completion:", error);
+    }
+  }, [tasks]);
+
+  const addTask = useCallback(async (formData: TaskFormData) => {
     if (!formData.title.trim()) return;
+
     const subtaskList = formData.subtasks
       .split("\n")
       .map((s) => s.trim())
       .filter(Boolean);
 
+    const now = Date.now();
+
     const task: Task = {
-      id: Date.now(),
+      id: now,
       title: formData.title.trim(),
       subtasks: subtaskList,
       reminder: formData.reminder,
       timeBlock: formData.timeBlock,
       active: true,
-      createdAt: Date.now(),
+      complete: false,
+      createdAt: now,
     };
-    setTasks((prev) => [...prev, task]);
+
+    try {
+      const nextTasks = await saveTaskCmd(task);
+      setTasks(nextTasks);
+    } catch (error) {
+      console.error("failed to save task:", error);
+      throw error;
+    }
   }, []);
 
-  const updateTask = useCallback((id: number, formData: TaskFormData) => {
-    if (!formData.title.trim()) return;
-    const subtaskList = formData.subtasks
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean);
+  const updateTask = useCallback(
+    async (id: number, formData: TaskFormData) => {
+      if (!formData.title.trim()) return;
 
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.id === id
-          ? {
-              ...t,
-              title: formData.title.trim(),
-              subtasks: subtaskList,
-              reminder: formData.reminder,
-              timeBlock: formData.timeBlock,
-            }
-          : t
-      )
-    );
-  }, []);
+      const current = tasks.find((t) => t.id === id);
+      if (!current) return;
 
-  const deleteTask = useCallback((id: number) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
-    setCompletions((prev) => {
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
+      const subtaskList = formData.subtasks
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const updatedTask: Task = {
+        ...current,
+        title: formData.title.trim(),
+        subtasks: subtaskList,
+        reminder: formData.reminder,
+        timeBlock: formData.timeBlock,
+      };
+
+      try {
+        const nextTasks = await updateTaskCmd(updatedTask);
+        setTasks(nextTasks);
+      } catch (error) {
+        console.error("failed to update task:", error);
+      }
+    },
+    [tasks]
+  );
+
+  const deleteTask = useCallback(async (id: number) => {
+    try {
+      const nextTasks = await removeTaskCmd(id);
+      setTasks(nextTasks);
+    } catch (error) {
+      console.error("failed to delete task:", error);
+    }
   }, []);
 
   const isCompleted = useCallback(
-    (id: number) => !!completions[id],
-    [completions]
+    (id: number) => {
+      const task = tasks.find((t) => t.id === id);
+      return !!task?.complete;
+    },
+    [tasks]
   );
 
   return {
