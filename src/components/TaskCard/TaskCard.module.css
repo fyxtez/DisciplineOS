@@ -1,8 +1,12 @@
 .card {
   border-radius: 10px;
-  padding: 12px 14px;
+  padding: 16px 18px;
   transition: background 0.2s ease, border-color 0.2s ease;
   animation: fadeIn 0.3s ease;
+}
+
+.card:hover {
+  background: var(--bg-hover);
 }
 
 .cardActive {
@@ -13,6 +17,7 @@
 .cardDone {
   background: var(--completed-bg);
   border: 1px solid rgba(124, 173, 138, 0.1);
+  opacity: 0.7;
 }
 
 .main {
@@ -24,9 +29,9 @@
 /* ── Checkbox ── */
 
 .check {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
   border-radius: 7px;
   cursor: pointer;
   display: flex;
@@ -87,6 +92,12 @@
   line-height: 24px;
   text-decoration: line-through;
   transition: color 0.3s ease;
+}
+
+.title,
+.titleDone {
+  font-size: 16px;  
+  line-height: 26px;
 }
 
 .reminder {
