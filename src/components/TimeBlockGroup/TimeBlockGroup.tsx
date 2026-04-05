@@ -16,6 +16,8 @@ interface TimeBlockGroupProps {
   onToggle: (id: number) => void;
   onEdit: (id: number, data: TaskFormData) => void;
   onDelete: (id: number) => void;
+  onMoveUp: (id: number) => void;
+  onMoveDown: (id: number) => void;
 }
 
 export default function TimeBlockGroup({
@@ -26,6 +28,8 @@ export default function TimeBlockGroup({
   onToggle,
   onEdit,
   onDelete,
+  onMoveUp,
+  onMoveDown,
 }: TimeBlockGroupProps) {
   if (tasks.length === 0) return null;
 
@@ -51,16 +55,20 @@ export default function TimeBlockGroup({
         )}
       </div>
       <div className={styles.list}>
-        {tasks.map((task) => (
-          <TaskCard
-            key={task.id}
-            task={task}
-            completed={isCompleted(task.id)}
-            onToggle={onToggle}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
-        ))}
+{tasks.map((task, index) => (
+  <TaskCard
+    key={task.id}
+    task={task}
+    completed={isCompleted(task.id)}
+    onToggle={onToggle}
+    onEdit={onEdit}
+    onDelete={onDelete}
+    onMoveUp={onMoveUp}
+    onMoveDown={onMoveDown}
+    canMoveUp={index > 0}
+    canMoveDown={index < tasks.length - 1}
+  />
+))}
       </div>
     </div>
   );

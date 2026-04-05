@@ -6,6 +6,8 @@ import {
   ChevronIcon,
   EditIcon,
   TrashIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
 } from "../Icons";
 import SubtaskList from "../SubtaskList";
 import EditTask from "../EditTask";
@@ -17,6 +19,10 @@ interface TaskCardProps {
   onToggle: (id: number) => void;
   onEdit: (id: number, data: TaskFormData) => void;
   onDelete: (id: number) => void;
+  onMoveUp: (id: number) => void;
+  onMoveDown: (id: number) => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
 }
 
 export default function TaskCard({
@@ -25,6 +31,10 @@ export default function TaskCard({
   onToggle,
   onEdit,
   onDelete,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
 }: TaskCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -139,6 +149,30 @@ export default function TaskCard({
             e.stopPropagation();
           }}
         >
+          <button
+            type="button"
+            className={styles.actionBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveUp(task.id);
+            }}
+            title="Move up"
+            disabled={!canMoveUp}
+          >
+            <ArrowUpIcon />
+          </button>
+          <button
+            type="button"
+            className={styles.actionBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveDown(task.id);
+            }}
+            title="Move down"
+            disabled={!canMoveDown}
+          >
+            <ArrowDownIcon />
+          </button>
           <button
             type="button"
             className={styles.actionBtn}

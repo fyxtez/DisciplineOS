@@ -5,4 +5,6 @@ export {
   EditIcon,
   ClockIcon,
   ChevronIcon,
+   ArrowUpIcon,
+  ArrowDownIcon,
 } from "./Icons";

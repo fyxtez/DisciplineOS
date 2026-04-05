@@ -16,6 +16,8 @@ interface TaskListProps {
   onToggle: (id: number) => void;
   onEdit: (id: number, data: TaskFormData) => void;
   onDelete: (id: number) => void;
+  onMoveUp: (id: number) => void;
+  onMoveDown: (id: number) => void;
   isEmpty: boolean;
 }
 
@@ -26,6 +28,8 @@ export default function TaskList({
   onToggle,
   onEdit,
   onDelete,
+  onMoveUp,
+  onMoveDown,
   isEmpty,
 }: TaskListProps) {
   if (isEmpty) {
@@ -43,14 +47,16 @@ export default function TaskList({
     <div className={styles.list}>
       {TIME_BLOCKS.map((block) => (
         <TimeBlockGroup
-          key={block.key}
-          block={block}
-          tasks={getBlockTasks(block.key)}
-          progress={getBlockProgress(block.key)}
-          isCompleted={isCompleted}
-          onToggle={onToggle}
-          onEdit={onEdit}
-          onDelete={onDelete}
+  key={block.key}
+  block={block}
+  tasks={getBlockTasks(block.key)}
+  progress={getBlockProgress(block.key)}
+  isCompleted={isCompleted}
+  onToggle={onToggle}
+  onEdit={onEdit}
+  onDelete={onDelete}
+  onMoveUp={onMoveUp}
+  onMoveDown={onMoveDown}
         />
       ))}
     </div>

@@ -7,19 +7,21 @@ import TaskList from "./components/TaskList";
 import styles from "./App.module.css";
 
 export default function App() {
-  const {
-    activeTasks,
-    completedCount,
-    totalCount,
-    allDone,
-    getBlockTasks,
-    getBlockProgress,
-    toggleComplete,
-    addTask,
-    updateTask,
-    deleteTask,
-    isCompleted,
-  } = useTasks();
+const {
+  activeTasks,
+  completedCount,
+  totalCount,
+  allDone,
+  getBlockTasks,
+  getBlockProgress,
+  toggleComplete,
+  addTask,
+  updateTask,
+  deleteTask,
+  moveTaskUp,
+  moveTaskDown,
+  isCompleted,
+} = useTasks();
 
 const handleEdit = async (id: number, data: TaskFormData) => {
   await updateTask(id, data);
@@ -45,6 +47,8 @@ const handleEdit = async (id: number, data: TaskFormData) => {
           onToggle={toggleComplete}
           onEdit={handleEdit}
           onDelete={deleteTask}
+            onMoveUp={moveTaskUp}
+  onMoveDown={moveTaskDown}
           isEmpty={activeTasks.length === 0}
         />
 

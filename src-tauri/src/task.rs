@@ -20,6 +20,8 @@ pub struct Task {
     #[serde(default)] // Added so deserialization does not fail
     pub complete: bool,
     pub created_at: i64,
+    #[serde(default)]
+    pub sort_order: i32
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

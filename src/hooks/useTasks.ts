@@ -50,7 +50,15 @@ export function useTasks() {
 
   const getBlockTasks = useCallback(
     (blockKey: TimeBlockKey): Task[] => {
-      return activeTasks.filter((t) => t.timeBlock === blockKey);
+      return activeTasks
+        .filter((t) => t.timeBlock === blockKey)
+        .sort((a, b) => {
+          const aOrder = a.sortOrder ?? Number.MAX_SAFE_INTEGER;
+          const bOrder = b.sortOrder ?? Number.MAX_SAFE_INTEGER;
+
+          if (aOrder !== bOrder) return aOrder - bOrder;
+          return a.createdAt - b.createdAt;
+        });
     },
     [activeTasks]
   );
@@ -98,6 +106,15 @@ export function useTasks() {
 
     const now = Date.now();
 
+    const blockTasks = tasks.filter(
+      (t) => t.active && t.timeBlock === formData.timeBlock
+    );
+
+    const nextSortOrder =
+      blockTasks.length > 0
+        ? Math.max(...blockTasks.map((t) => t.sortOrder ?? 0)) + 1
+        : 0;
+
     const task: Task = {
       id: now,
       title: formData.title.trim(),
@@ -107,6 +124,7 @@ export function useTasks() {
       active: true,
       complete: false,
       createdAt: now,
+      sortOrder: nextSortOrder,
     };
 
     try {
@@ -116,7 +134,7 @@ export function useTasks() {
       console.error("failed to save task:", error);
       throw error;
     }
-  }, []);
+  }, [tasks]);
 
   const updateTask = useCallback(
     async (id: number, formData: TaskFormData) => {
@@ -130,12 +148,28 @@ export function useTasks() {
         .map((s) => s.trim())
         .filter(Boolean);
 
+      const targetBlockTasks = tasks.filter(
+        (t) =>
+          t.id !== id &&
+          t.active &&
+          t.timeBlock === formData.timeBlock
+      );
+
+      const nextSortOrder =
+        targetBlockTasks.length > 0
+          ? Math.max(...targetBlockTasks.map((t) => t.sortOrder ?? 0)) + 1
+          : 0;
+
       const updatedTask: Task = {
         ...current,
         title: formData.title.trim(),
         subtasks: subtaskList,
         reminder: formData.reminder,
         timeBlock: formData.timeBlock,
+        sortOrder:
+          current.timeBlock === formData.timeBlock
+            ? current.sortOrder
+            : nextSortOrder,
       };
 
       try {
@@ -165,6 +199,82 @@ export function useTasks() {
     [tasks]
   );
 
+  const moveTaskUp = useCallback(async (id: number) => {
+    const current = tasks.find((t) => t.id === id);
+    if (!current) return;
+
+    const blockTasks = tasks
+      .filter((t) => t.active && t.timeBlock === current.timeBlock)
+      .sort((a, b) => {
+        const aOrder = a.sortOrder ?? Number.MAX_SAFE_INTEGER;
+        const bOrder = b.sortOrder ?? Number.MAX_SAFE_INTEGER;
+
+        if (aOrder !== bOrder) return aOrder - bOrder;
+        return a.createdAt - b.createdAt;
+      });
+
+    const index = blockTasks.findIndex((t) => t.id === id);
+    if (index <= 0) return;
+
+    const prevTask = blockTasks[index - 1];
+
+    const updatedCurrent: Task = {
+      ...current,
+      sortOrder: prevTask.sortOrder,
+    };
+
+    const updatedPrev: Task = {
+      ...prevTask,
+      sortOrder: current.sortOrder,
+    };
+
+    try {
+      let nextTasks = await updateTaskCmd(updatedCurrent);
+      nextTasks = await updateTaskCmd(updatedPrev);
+      setTasks(nextTasks);
+    } catch (error) {
+      console.error("failed to move task up:", error);
+    }
+  }, [tasks]);
+
+  const moveTaskDown = useCallback(async (id: number) => {
+    const current = tasks.find((t) => t.id === id);
+    if (!current) return;
+
+    const blockTasks = tasks
+      .filter((t) => t.active && t.timeBlock === current.timeBlock)
+      .sort((a, b) => {
+        const aOrder = a.sortOrder ?? Number.MAX_SAFE_INTEGER;
+        const bOrder = b.sortOrder ?? Number.MAX_SAFE_INTEGER;
+
+        if (aOrder !== bOrder) return aOrder - bOrder;
+        return a.createdAt - b.createdAt;
+      });
+
+    const index = blockTasks.findIndex((t) => t.id === id);
+    if (index === -1 || index >= blockTasks.length - 1) return;
+
+    const nextTask = blockTasks[index + 1];
+
+    const updatedCurrent: Task = {
+      ...current,
+      sortOrder: nextTask.sortOrder,
+    };
+
+    const updatedNext: Task = {
+      ...nextTask,
+      sortOrder: current.sortOrder,
+    };
+
+    try {
+      let nextTasks = await updateTaskCmd(updatedCurrent);
+      nextTasks = await updateTaskCmd(updatedNext);
+      setTasks(nextTasks);
+    } catch (error) {
+      console.error("failed to move task down:", error);
+    }
+  }, [tasks]);
+
   return {
     tasks,
     activeTasks,
@@ -178,6 +288,8 @@ export function useTasks() {
     addTask,
     updateTask,
     deleteTask,
+    moveTaskUp,
+    moveTaskDown,
     isCompleted,
   };
 }

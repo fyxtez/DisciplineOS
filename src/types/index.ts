@@ -16,6 +16,7 @@ export interface Task {
   active: boolean;
   complete: boolean;
   createdAt: number;
+  sortOrder: number;
 }
 
 export interface TaskFormData {

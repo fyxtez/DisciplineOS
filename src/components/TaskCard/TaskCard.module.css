@@ -150,6 +150,16 @@
   transition: opacity 0.15s ease;
 }
 
+.actionBtn:disabled {
+  opacity: 0.3;
+  cursor: auto;
+}
+
+.actionBtn:disabled:hover {
+  color: var(--text-muted);
+  background: none;
+}
+
 .card:hover .actions {
   opacity: 1;
 }
