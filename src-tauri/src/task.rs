@@ -187,6 +187,10 @@ pub fn save_task(app: AppHandle, task: Task) -> Result<Vec<Task>, String> {
     let path = tasks_file_path(&app)?;
     let mut tasks = read_tasks_from_file(&path)?;
 
+    if tasks.iter().any(|t| t.id == task.id) {
+        return Err(format!("task with id {} already exists", task.id));
+    }
+
     tasks.push(task);
     write_tasks_atomic(&path, &tasks)?;
 

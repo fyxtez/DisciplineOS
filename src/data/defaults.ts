@@ -1,103 +1,10 @@
+//@ts-nocheck
+
+import { saveTask } from "../tasks";
 import type { Task, TimeBlock } from "../types";
 
 export const TIME_BLOCKS: TimeBlock[] = [
   { key: "morning", label: "morning", icon: "◐", hours: "6am – 12pm" },
   { key: "midday", label: "midday", icon: "●", hours: "12pm – 5pm" },
   { key: "evening", label: "evening", icon: "◑", hours: "5pm onwards" },
-];
-
-export const DEFAULT_TASKS: Task[] = [
-  {
-    id: 1,
-    title: "Drink Apple Cider Vinegar + Lime + Curcumin",
-    subtasks: [],
-    reminder: "",
-    timeBlock: "morning",
-    active: true,
-    createdAt: Date.now(),
-  },
-    {
-    id: 122,
-    title: "Sun  Cream -  SPF 50",
-    subtasks: [],
-    reminder: "",
-    timeBlock: "morning",
-    active: true,
-    createdAt: Date.now(),
-  },
-    {
-    id: 11,
-    title: "Drink Apple Cider Vinegar + Lime",
-    subtasks: [],
-    reminder: "",
-    timeBlock: "midday",
-    active: true,
-    createdAt: Date.now(),
-  },
-    {
-    id: 111,
-    title: "Drink Apple Cider Vinegar + Lime",
-    subtasks: [],
-    reminder: "",
-    timeBlock: "evening",
-    active: true,
-    createdAt: Date.now(),
-  },
-  {
-    id: 3,
-    title: "Take Supplements",
-    subtasks: [],
-    reminder: "",
-    timeBlock: "morning",
-    active: true,
-    createdAt: Date.now(),
-  },
-  {
-    id: 4,
-    title: "Enhance protein breakfast",
-    subtasks: ["Drink olive oil", "Take Vitamin D", "Take Omega 3"],
-    reminder: "",
-    timeBlock: "morning",
-    active: true,
-    createdAt: Date.now(),
-  },
-  {
-    id: 5,
-    title: "Make Protein Shake",
-    subtasks: [
-      "Add Cacao",
-      "Add Salt",
-    ],
-    reminder: "",
-    timeBlock: "midday",
-    active: true,
-    createdAt: Date.now(),
-  },
-  {
-    id: 7,
-    title: "Take Supplements",
-    subtasks: ["Magnesium","Kefir"],
-    reminder: "22:00",
-    timeBlock: "evening",
-    active: true,
-    createdAt: Date.now(),
-  },
-  {
-    id: 8,
-    title: "Clean Face",
-    subtasks: ["Alverde Oil", "Liquid Peeling"],
-    reminder: "",
-    timeBlock: "evening",
-    active: true,
-    createdAt: Date.now(),
-  },
-    {
-    id: 9,
-    title: "Set Alarms",
-    subtasks: [],
-    reminder: "",
-    timeBlock: "evening",
-    active: true,
-    createdAt: Date.now(),
-  },
 ];

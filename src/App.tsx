@@ -12,7 +12,6 @@ export default function App() {
     completedCount,
     totalCount,
     allDone,
-    progress,
     getBlockTasks,
     getBlockProgress,
     toggleComplete,
