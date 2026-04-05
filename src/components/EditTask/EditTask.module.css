@@ -62,6 +62,10 @@
   font-size: 12px;
 }
 
+.reminderGroup{
+  display: none;
+}
+
 .timeInput {
   padding: 5px 8px;
   background: var(--bg-input);
