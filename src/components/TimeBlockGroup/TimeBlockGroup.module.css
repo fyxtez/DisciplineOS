@@ -1,5 +1,5 @@
 .group {
-  min-width: 320px;
+  min-width: 280px;
   display: flex;
   flex-direction: column;
 }

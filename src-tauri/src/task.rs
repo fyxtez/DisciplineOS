@@ -1,4 +1,4 @@
-use chrono::{Local, Timelike};
+use chrono::{Datelike, Local, Timelike, Weekday};
 use serde::{Deserialize, Serialize};
 use std::{
     fs,
@@ -30,6 +30,7 @@ pub enum TimeBlockKey {
     Morning,
     Midday,
     Evening,
+    Weekly,
 }
 fn ensure_app_data_dir(app: &AppHandle) -> Result<PathBuf, String> {
     let dir = app
@@ -87,7 +88,7 @@ fn write_tasks_atomic(path: &Path, tasks: &[Task]) -> Result<(), String> {
     Ok(())
 }
 
-fn reset_tasks_file(path: &Path) -> Result<(), String> {
+fn reset_daily_tasks_file(path: &Path) -> Result<(), String> {
     if !path.exists() {
         return Ok(());
     }
@@ -103,32 +104,72 @@ fn reset_tasks_file(path: &Path) -> Result<(), String> {
         serde_json::from_str(&content).map_err(|e| format!("failed to parse tasks json: {e}"))?;
 
     for task in &mut tasks {
-        task.complete = false;
+        match task.time_block {
+            TimeBlockKey::Morning | TimeBlockKey::Midday | TimeBlockKey::Evening => {
+                task.complete = false;
+            }
+            TimeBlockKey::Weekly => {}
+        }
     }
 
     write_tasks_atomic(path, &tasks)
 }
 
-pub fn start_daily_reset_timer(app: tauri::AppHandle) {
+fn reset_weekly_tasks_file(path: &Path) -> Result<(), String> {
+    if !path.exists() {
+        return Ok(());
+    }
+
+    let content =
+        fs::read_to_string(path).map_err(|e| format!("failed to read tasks file: {e}"))?;
+
+    if content.trim().is_empty() {
+        return Ok(());
+    }
+
+    let mut tasks: Vec<Task> =
+        serde_json::from_str(&content).map_err(|e| format!("failed to parse tasks json: {e}"))?;
+
+    for task in &mut tasks {
+        if matches!(task.time_block, TimeBlockKey::Weekly) {
+            task.complete = false;
+        }
+    }
+
+    write_tasks_atomic(path, &tasks)
+}
+
+
+pub fn start_reset_timer(app: tauri::AppHandle) {
     tauri::async_runtime::spawn(async move {
-        let mut last_reset_day: Option<String> = None;
+let mut last_daily_reset_day = last_daily_reset_path(&app)
+    .ok()
+    .and_then(|path| fs::read_to_string(path).ok());
+
+let mut last_weekly_reset_week = last_weekly_reset_path(&app)
+    .ok()
+    .and_then(|path| fs::read_to_string(path).ok());
 
         loop {
             let now = Local::now();
             let today = now.format("%Y-%m-%d").to_string();
+            let current_week = format!("{}-W{:02}", now.iso_week().year(), now.iso_week().week());
 
-            if now.hour() == 0 && now.minute() <= 2 && last_reset_day.as_deref() != Some(&today) {
+            if now.hour() == 0
+                && now.minute() <= 2
+                && last_daily_reset_day.as_deref() != Some(&today)
+            {
                 match tasks_file_path(&app) {
                     Ok(path) => {
-                        if let Err(err) = reset_tasks_file(&path) {
+                        if let Err(err) = reset_daily_tasks_file(&path) {
                             eprintln!("daily reset failed: {err}");
                         } else {
                             println!("daily reset completed for {}", today);
-                            last_reset_day = Some(today.clone());
+                            last_daily_reset_day = Some(today.clone());
 
-                            if let Ok(reset_path) = last_reset_path(&app) {
+                            if let Ok(reset_path) = last_daily_reset_path(&app) {
                                 if let Err(err) = fs::write(&reset_path, &today) {
-                                    eprintln!("failed to write reset date: {err}");
+                                    eprintln!("failed to write daily reset date: {err}");
                                 }
                             }
                         }
@@ -139,15 +180,41 @@ pub fn start_daily_reset_timer(app: tauri::AppHandle) {
                 }
             }
 
+            if now.weekday() == Weekday::Mon
+                && now.hour() == 0
+                && now.minute() <= 2
+                && last_weekly_reset_week.as_deref() != Some(&current_week)
+            {
+                match tasks_file_path(&app) {
+                    Ok(path) => {
+                        if let Err(err) = reset_weekly_tasks_file(&path) {
+                            eprintln!("weekly reset failed: {err}");
+                        } else {
+                            println!("weekly reset completed for {}", current_week);
+                            last_weekly_reset_week = Some(current_week.clone());
+
+                            if let Ok(reset_path) = last_weekly_reset_path(&app) {
+                                if let Err(err) = fs::write(&reset_path, &current_week) {
+                                    eprintln!("failed to write weekly reset date: {err}");
+                                }
+                            }
+                        }
+                    }
+                    Err(err) => {
+                        eprintln!("failed to resolve tasks path for weekly reset: {err}");
+                    }
+                }
+            }
+
             sleep(Duration::from_secs(30)).await;
         }
     });
 }
 
-pub fn run_reset_check_now(app: &tauri::AppHandle) {
+pub fn run_daily_reset_check_now(app: &tauri::AppHandle) {
     let today = Local::now().format("%Y-%m-%d").to_string();
 
-    let reset_path = match last_reset_path(app) {
+    let reset_path = match last_daily_reset_path(app) {
         Ok(p) => p,
         Err(e) => {
             eprintln!("failed to resolve reset path: {e}");
@@ -158,12 +225,12 @@ pub fn run_reset_check_now(app: &tauri::AppHandle) {
     let last = fs::read_to_string(&reset_path).ok();
 
     if last.as_deref() != Some(&today) {
-        if let Ok(tasks_path) = tasks_file_path(app) {
-            if let Err(err) = reset_tasks_file(&tasks_path) {
-                eprintln!("startup reset failed: {err}");
-                return;
-            }
-        }
+if let Ok(tasks_path) = tasks_file_path(app) {
+    if let Err(err) = reset_daily_tasks_file(&tasks_path) {
+        eprintln!("startup daily reset failed: {err}");
+        return;
+    }
+}
 
         if let Err(err) = fs::write(&reset_path, &today) {
             eprintln!("failed to write reset date: {err}");
@@ -173,9 +240,45 @@ pub fn run_reset_check_now(app: &tauri::AppHandle) {
     }
 }
 
-fn last_reset_path(app: &AppHandle) -> Result<PathBuf, String> {
+fn last_daily_reset_path(app: &AppHandle) -> Result<PathBuf, String> {
     let dir = ensure_app_data_dir(app)?;
-    Ok(dir.join("last_reset.txt"))
+    Ok(dir.join("last_daily_reset.txt"))
+}
+
+fn last_weekly_reset_path(app: &AppHandle) -> Result<PathBuf, String> {
+    let dir = ensure_app_data_dir(app)?;
+    Ok(dir.join("last_weekly_reset.txt"))
+}
+
+
+pub fn run_weekly_reset_check_now(app: &tauri::AppHandle) {
+    let now = Local::now();
+    let current_week = format!("{}-W{:02}", now.iso_week().year(), now.iso_week().week());
+
+    let reset_path = match last_weekly_reset_path(app) {
+        Ok(p) => p,
+        Err(e) => {
+            eprintln!("failed to resolve weekly reset path: {e}");
+            return;
+        }
+    };
+
+    let last = fs::read_to_string(&reset_path).ok();
+
+    if now.weekday() == Weekday::Mon && last.as_deref() != Some(&current_week) {
+        if let Ok(tasks_path) = tasks_file_path(app) {
+            if let Err(err) = reset_weekly_tasks_file(&tasks_path) {
+                eprintln!("startup weekly reset failed: {err}");
+                return;
+            }
+        }
+
+        if let Err(err) = fs::write(&reset_path, &current_week) {
+            eprintln!("failed to write weekly reset date: {err}");
+        }
+
+        println!("startup weekly reset executed");
+    }
 }
 
 #[tauri::command]

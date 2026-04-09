@@ -1,4 +1,4 @@
-export type TimeBlockKey = "morning" | "midday" | "evening";
+export type TimeBlockKey = "morning" | "midday" | "evening"  | "weekly";;
 
 export interface TimeBlock {
   key: TimeBlockKey;
